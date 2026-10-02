@@ -4,6 +4,8 @@ import java.util.Scanner;
 public class Programaprincipal {
 
     public static void main(String[] args) {
+        Scanner teclat = new Scanner(System.in);
+
 
         String clau = "123";
 
@@ -52,8 +54,6 @@ public class Programaprincipal {
         System.out.println("Desencriptat amb clau abc: " + ClasseCriptografica.desencripta(xifrat1, "abc"));
         System.out.println();
 
-        // Prova amb les dades que introdueix l'usuari
-        Scanner teclat = new Scanner(System.in);
 
         System.out.println("Prova amb les teves dades");
         System.out.print("Escriu el missatge: ");
@@ -61,7 +61,6 @@ public class Programaprincipal {
         System.out.print("Escriu la clau: ");
         String clauUsuari = teclat.nextLine();
 
-        // try/catch per si l'usuari deixa la clau buida (validaDades llança un error)
         try {
             String xifratUsuari = ClasseCriptografica.encripta(missatgeUsuari, clauUsuari);
             System.out.println("Encriptat: " + xifratUsuari);

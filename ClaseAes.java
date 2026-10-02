@@ -21,50 +21,5 @@ public class ClaseAes {
         Cipher cipher = Cipher.getInstance(ALGORISME);
         cipher.init(Cipher.ENCRYPT_MODE, clauAES);
 
-        // 4. Convertir el missatge al format necessari: AES treballa amb bytes, no amb text
-        byte[] bytesMissatge = missatge.getBytes(StandardCharsets.UTF_8);
-
-        // 5. Xifrar el missatge
-        byte[] bytesXifrats = cipher.doFinal(bytesMissatge);
-
-        // 6. Convertir el resultat a String: els bytes xifrats no es poden mostrar
-        //    com a text, així que els passem a Base64 (lletres, números, + / =)
-        String missatgeXifrat = Base64.getEncoder().encodeToString(bytesXifrats);
-
-        // 7. Retornar el missatge xifrat
-        return missatgeXifrat;
-    }
-
-    // 1. Rebre el missatge xifrat i la clau
-    public static String desencripta(String missatgeXifrat, String clau) throws Exception {
-
-        // 2. Preparar la clau
-        SecretKeySpec clauAES = preparaClau(clau);
-
-        // 3. Crear i configurar el sistema de desxifrat (mode DESENCRIPTAR)
-        Cipher cipher = Cipher.getInstance(ALGORISME);
-        cipher.init(Cipher.DECRYPT_MODE, clauAES);
-
-        // 4. Recuperar les dades xifrades desfent el Base64
-        byte[] bytesXifrats = Base64.getDecoder().decode(missatgeXifrat);
-
-        // 5. Desxifrar-les
-        byte[] bytesOriginals = cipher.doFinal(bytesXifrats);
-
-        // 6. Convertir el resultat novament a text
-        String missatgeOriginal = new String(bytesOriginals, StandardCharsets.UTF_8);
-
-        // 7. Retornar el missatge original
-        return missatgeOriginal;
-    }
-
-    // Converteix la clau de text en una clau que AES pot utilitzar.
-    // Si la clau no té 16, 24 o 32 bytes, Java llançarà una InvalidKeyException a init().
-    private static SecretKeySpec preparaClau(String clau) {
-        if (clau == null || clau.isEmpty()) {
-            throw new IllegalArgumentException("La clau no pot estar buida.");
-        }
-        byte[] bytesClau = clau.getBytes(StandardCharsets.UTF_8);
-        return new SecretKeySpec(bytesClau, "AES");
-    }
+}
 }
