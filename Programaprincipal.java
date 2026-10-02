@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 // Programa principal: utilitza la ClasseCriptografica
 public class Programaprincipal {
 
@@ -47,6 +49,27 @@ public class Programaprincipal {
 
         // Test 6: amb una clau incorrecta no es recupera el missatge
         System.out.println("Test 6");
-        System.out.println("Desencriptat amb clau 999: " + ClasseCriptografica.desencripta(xifrat1, "999"));
+        System.out.println("Desencriptat amb clau abc: " + ClasseCriptografica.desencripta(xifrat1, "abc"));
+        System.out.println();
+
+        // Prova amb les dades que introdueix l'usuari
+        Scanner teclat = new Scanner(System.in);
+
+        System.out.println("Prova amb les teves dades");
+        System.out.print("Escriu el missatge: ");
+        String missatgeUsuari = teclat.nextLine();
+        System.out.print("Escriu la clau: ");
+        String clauUsuari = teclat.nextLine();
+
+        // try/catch per si l'usuari deixa la clau buida (validaDades llança un error)
+        try {
+            String xifratUsuari = ClasseCriptografica.encripta(missatgeUsuari, clauUsuari);
+            System.out.println("Encriptat: " + xifratUsuari);
+            System.out.println("Desencriptat: " + ClasseCriptografica.desencripta(xifratUsuari, clauUsuari));
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        teclat.close();
     }
 }

@@ -1,81 +1,77 @@
-import java.nio.charset.StandardCharsets;
-
-// Sistema de xifrat XOR-Pos: combina un XOR amb la clau i un desplaçament
-// que depèn de la clau i de la posició de cada lletra.
 public class ClasseCriptografica {
 
     public static String encripta(String missatge, String clau) {
-        comprovaClau(clau);
 
-        // Convertim el missatge i la clau a bytes (cada lletra passa a ser un número)
-        byte[] bytesMissatge = missatge.getBytes(StandardCharsets.UTF_8);
-        byte[] bytesClau = clau.getBytes(StandardCharsets.UTF_8);
+        // XOR + CLAU + POSICIÓ + HEXADECIMAL
+        validaDades(missatge, clau);
 
+        // StringBuilder abans de bucle.
         StringBuilder resultat = new StringBuilder();
 
-        for (int i = 0; i < bytesMissatge.length; i++) {
-            // Número de la lletra del missatge (el "& 0xFF" el deixa entre 0 i 255)
-            int lletra = bytesMissatge[i] & 0xFF;
+        for (int i = 0; i < missatge.length(); i++) {
+            char lletra = missatge.charAt(i);
+            char lletraClau = obteLletraClau(clau, i);
 
-            // Lletra de la clau que toca a aquesta posició.
-            // El "% bytesClau.length" fa que la clau es repeteixi quan s'acaba.
-            int valorClau = bytesClau[i % bytesClau.length] & 0xFF;
-
-            // Pas 1: XOR (^) entre la lletra i la clau.
+            // Pas 1: XOR  entre la lletra i la clau.
             // Compara els dos números bit a bit: bits iguals donen 0, diferents donen 1.
-            // Exemple: H (72) ^ '1' (49) = 121
-            int xifrat = lletra ^ valorClau;
+            int valor = lletra ^ lletraClau;
 
-            // Pas 2: sumem el valor de la clau i la posició.
-            // La posició fa que la mateixa lletra es xifri diferent segons on està.
-            // El "% 256" fa que el resultat càpiga en un byte.
-            xifrat = (xifrat + valorClau + i) % 256;
+            // Pas 2: sumem la clau i la posició.
+            // El "% 256" fa que el número no passi de 255 i sempre càpiga en 2 xifres hexadecimals.
+            valor = (valor + lletraClau + i) % 256;
 
-            // Pas 3: escrivim el número en hexadecimal amb 2 xifres (ex: 170 -> AA)
-            resultat.append(String.format("%02X", xifrat));
+            // Pas 3: passem el número a hexadecimal amb 2 xifres.
+            resultat.append(String.format("%02X", valor));
         }
 
         return resultat.toString();
     }
 
     public static String desencripta(String missatgeXifrat, String clau) {
-        comprovaClau(clau);
+        validaDades(missatgeXifrat, clau);
 
-        // Cada lletra xifrada ocupa 2 xifres hexadecimals, la longitud ha de ser parella
+        // Cada lletra ocupa 2 xifres hexadecimals, la longitud ha de ser parella
         if (missatgeXifrat.length() % 2 != 0) {
             throw new IllegalArgumentException("El missatge xifrat no és vàlid.");
         }
 
-        byte[] bytesClau = clau.getBytes(StandardCharsets.UTF_8);
-        int longitud = missatgeXifrat.length() / 2;
-        byte[] bytesMissatge = new byte[longitud];
+        StringBuilder resultat = new StringBuilder();
 
-        for (int i = 0; i < longitud; i++) {
-            // Pas 1: agafem 2 xifres hexadecimals i les passem a número (ex: AA -> 170)
-            String parella = missatgeXifrat.substring(i * 2, i * 2 + 2);
-            int xifrat = Integer.parseInt(parella, 16);
+        // Hi ha la meitat de lletres que de xifres hexadecimals
+        for (int i = 0; i < missatgeXifrat.length() / 2; i++) {
+            // Pas 1: agafem les 2 xifres hexadecimals d'aquesta lletra i les passem a número.
+            // Exemple: "AA" -> 170
+            String hex = missatgeXifrat.substring(i * 2, i * 2 + 2);
+            int valor = Integer.parseInt(hex, 16);
 
-            // La mateixa lletra de la clau que es va fer servir per encriptar
-            int valorClau = bytesClau[i % bytesClau.length] & 0xFF;
+            char lletraClau = obteLletraClau(clau, i);
 
             // Pas 2: desfem la suma restant la clau i la posició.
-            // El "+ 256) % 256" evita que surtin números negatius.
-            int valor = ((xifrat - valorClau - i) % 256 + 256) % 256;
+            // Math.floorMod fa el % però sense donar mai 2números negatius.
+            valor = Math.floorMod(valor - lletraClau - i, 256);
 
             // Pas 3: desfem el XOR tornant a fer XOR amb la mateixa clau.
-            // Fer XOR dues vegades amb el mateix valor el cancel·la:
-            // 121 ^ 49 = 72 -> tornem a tenir la H
-            valor = valor ^ valorClau;
+            // Fer XOR dues vegades amb el mateix valor el cancel·la.
+            valor = valor ^ lletraClau;
 
-            bytesMissatge[i] = (byte) valor;
+            resultat.append((char) valor);
         }
 
-        // Tornem a convertir els bytes en text
-        return new String(bytesMissatge, StandardCharsets.UTF_8);
+        return resultat.toString();
     }
 
-    // Comprova que la clau no sigui buida (si no, el "%" dividiria per zero)
-    private static void comprovaClau(String clau) {
+    // Retorna la lletra de la clau que toca a cada posició.
+    // El "%" fa que la clau es repeteixi quan s'acaba: amb "123", la posició 3 torna a ser '1'.
+    private static char obteLletraClau(String clau, int posicio) {
+        return clau.charAt(posicio % clau.length());
+    }
+
+    // Comprova que les dades siguin vàlides abans de xifrar o desxifrar
+    private static void validaDades(String missatge, String clau) {
+        if (missatge == null) {
+            throw new IllegalArgumentException("El missatge no pot ser null.");
+        }
+        // Si la clau fos buida, el "%" dividiria per zero
         if (clau == null || clau.isEmpty()) {
             throw new IllegalArgumentException("La clau no pot estar buida.");
         }
