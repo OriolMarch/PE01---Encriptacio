@@ -4,8 +4,7 @@ import java.util.Scanner;
 public class Programaprincipal {
 
     public static void main(String[] args) {
-        Scanner teclat = new Scanner(System.in);
-
+         Scanner teclat = new Scanner(System.in);
 
         String clau = "123";
 
